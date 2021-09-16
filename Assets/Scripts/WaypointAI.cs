@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class WaypointAI : MonoBehaviour
 {
+    #region Variables
     [SerializeField] public float speed = 1f;
     [SerializeField] private GameObject[] goal;
     [SerializeField] private GameObject[] goalCross;
@@ -17,6 +18,7 @@ public class WaypointAI : MonoBehaviour
     public bool isAIMovingCross = true;
 
     public GameObject target;
+    #endregion
 
     void Start()
     {
@@ -30,29 +32,26 @@ public class WaypointAI : MonoBehaviour
         {
             return; //this exits the method early, if the ai is not moving
         }
-        if (target == null)
+        if (target == null) //if there is not target to chase
         {
             if (isAIMoving)
             {
-                Wander(currentGoal, speed);
+                Wander(currentGoal, speed); //wander
             }
             else if (isAIMovingCross)
             {
-                Cross(currentGoalCross, speed);
+                Cross(currentGoalCross, speed); //cross - only if wander is not activated
             }
         }
         else
         {
-            Chase(target, speed);
+            Chase(target, speed); //otherwise chase target
         }
         
     }
 
-    void Chase(GameObject goal, float currentSpeed)
+    void Chase(GameObject goal, float currentSpeed) //not in use for the assessment
     {
-        //direction from a to b
-        //direction = b-a 
-
         //this finds the direction to the goal
         Vector2 direction = (goal.transform.position - transform.position).normalized;
         Vector2 position = transform.position;
@@ -62,6 +61,7 @@ public class WaypointAI : MonoBehaviour
         transform.position = position;
     }
 
+    #region Wander State
     void Wander(GameObject goal, float currentSpeed)
     {
         //this gets the distance to the goal
@@ -73,13 +73,13 @@ public class WaypointAI : MonoBehaviour
         }
         else
         {
-            NextGoal();
+            NextGoal(); //if not close enough to chase the target, find the next goal
         }
     }
 
     void NextGoal()
     {
-        goalIndex ++; //goalindex+1 also increases by 1
+        goalIndex ++;
 
         //the -1 prevents the index out of range error
         if (goalIndex > goal.Length - 1) //this gets the length of the array, then resets it to 0 when the end is reached
@@ -89,13 +89,14 @@ public class WaypointAI : MonoBehaviour
 
         currentGoal = goal[goalIndex];
     }
+    #endregion
 
-    void Cross(GameObject goalCross, float currentSpeed)
+    #region Cross State
+    void Cross(GameObject goalCross, float currentSpeed) //does the same as wander, but follows goals in a different order
     {
-        //this gets the distance to the goal
         float distance = Vector2.Distance(transform.position, goalCross.transform.position);
 
-        if (distance > 0.01f) //this makes the square stop when it touches the circles, instead of bouncing around
+        if (distance > 0.01f)
         {
             Chase(goalCross, currentSpeed);
         }
@@ -105,16 +106,17 @@ public class WaypointAI : MonoBehaviour
         }
     }
 
-    void NextgoalCross()
+    void NextgoalCross() //the same as NextGoal but with the Cross order of goals instead
     {
-        goalIndexCross++; //goalindex+1 also increases by 1
+        goalIndexCross++; 
 
-        //the -1 prevents the index out of range error
-        if (goalIndexCross > goalCross.Length - 1) //this gets the length of the array, then resets it to 0 when the end is reached
+       
+        if (goalIndexCross > goalCross.Length - 1) 
         {
             goalIndexCross = 0;
         }
 
         currentGoalCross = goalCross[goalIndexCross];
     }
+    #endregion
 }

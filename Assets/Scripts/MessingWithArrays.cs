@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//not used for the assessment
+
 public class MessingWithArrays : MonoBehaviour
 {
     public string[] myStringArray;

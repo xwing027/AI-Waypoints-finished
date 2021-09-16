@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum State
+public enum State //this sets up the states that will be used
 {
     Wander,
     Stop,
@@ -29,16 +29,16 @@ public class StateMachine : MonoBehaviour
     {
         Debug.Log("Wander: Enter");
         sprite.color = Color.green; //the square will turn green when in a wander state (moving)
-        waypointAI.isAIMoving = true;
-        waypointAI.isAIMovingCross = false;
+        waypointAI.isAIMoving = true; //wander state is active
+        waypointAI.isAIMovingCross = false; //cross state is inactive
 
         while (state == State.Wander)
         {
-            float distance = Vector2.Distance(transform.position, player.transform.position);
+            float distance = Vector2.Distance(transform.position, player.transform.position); //this finds the distance to the player
 
             if (distance < chaseDistance && player.activeSelf == true) 
             {
-                state = State.Chase;
+                state = State.Chase; //if close enough, and the player is active, chase the player
             }
             yield return null;
         }
@@ -54,24 +54,24 @@ public class StateMachine : MonoBehaviour
         
         Debug.Log("Stop: Enter");
         sprite.color = Color.red; //the square will turn red when in a stop state (not moving)
-        waypointAI.isAIMoving = false;
+        waypointAI.isAIMoving = false; //stops wander state
+        waypointAI.isAIMovingCross = false; //stops cross state
         
         while (state == State.Stop)
         {
-            float distance = Vector2.Distance(transform.position, player.transform.position);
+            float distance = Vector2.Distance(transform.position, player.transform.position); //finds the distance to the player
+            
             if (Time.time > startTime + waitTime)
             {
-                state = State.Wander;
+                state = State.Wander; //after waiting, and if the player is still far, wander
             }
             else if (distance < chaseDistance)
             {
-                state = State.Chase;
+                state = State.Chase; //if the player is close, stop waiting and chase
             }
-
-
             yield return null;
-            //yield return new WaitForSeconds(3f); makes it wait for three seconds
         }
+        
         waypointAI.isAIMoving = true;
         Debug.Log("Stop: Exit");
         NextState();
@@ -83,8 +83,9 @@ public class StateMachine : MonoBehaviour
         sprite.color = Color.blue; //the square will turn red when in a stop state (not moving)
         while (state == State.Chase)
         {
-            waypointAI.target = player;
-            float distance = Vector2.Distance(transform.position, player.transform.position);
+            waypointAI.target = player; //player becomes the target
+            
+            float distance = Vector2.Distance(transform.position, player.transform.position); //getting the distance from the player
 
             if (distance < waypointAI.speed * Time.deltaTime)
             {
@@ -94,11 +95,12 @@ public class StateMachine : MonoBehaviour
             
             if (distance > chaseDistance)
             {
-                state = State.Stop;
+                state = State.Stop; //if the player is too far, enter stop state
             }
                 
             yield return null;
         }
+        
         waypointAI.target = null;
         Debug.Log("Chase: Exit");
         NextState();
@@ -108,16 +110,16 @@ public class StateMachine : MonoBehaviour
     {
         Debug.Log("Cross: Enter");
         sprite.color = Color.magenta; //the square will turn green when in a wander state (moving)
-        waypointAI.isAIMovingCross = true;
-        waypointAI.isAIMoving = false;
+        waypointAI.isAIMovingCross = true; //cross state is active
+        waypointAI.isAIMoving = false; //wander state is inactive
 
         while (state == State.Cross)
         {
-            float distance = Vector2.Distance(transform.position, player.transform.position);
+            float distance = Vector2.Distance(transform.position, player.transform.position); //find distance to the player
 
             if (distance < chaseDistance && player.activeSelf == true)
             {
-                state = State.Chase;
+                state = State.Chase; //if close enough to player, enter chase state
             }
             yield return null;
         }
@@ -133,6 +135,7 @@ public class StateMachine : MonoBehaviour
         {
             Debug.LogError("Sprite is null");
         }
+        
         waypointAI = GetComponent<WaypointAI>();
         if (waypointAI == null)
         {
@@ -150,7 +153,7 @@ public class StateMachine : MonoBehaviour
 
     private void NextState()
     {
-        switch (state)
+        switch (state) //this allows us to switch through the states without breaking
         {
             case State.Wander:
                 StartCoroutine(WanderState());
